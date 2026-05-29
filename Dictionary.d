@@ -1,5 +1,5 @@
 /*
-SPDX-FileContributor:Th3Fi
+SPDX-FileContributor: Th3Fi
 SPDX-FileType: SOURCE
 SPDX-License-Identifier: GPLv3
 */
@@ -12,12 +12,12 @@ import std.utf: byUTF;
 
 struct ThreadResult{
     int workerId;
-    int[] wordUTF;
+    ubyte[] wordUTF;
 }
 
 struct ThreadResultIM{
     immutable int workerId;
-    immutable int[] wordUTF;
+    immutable ubyte[] wordUTF;
 }
 
 auto tokenMake(string input){
@@ -26,7 +26,7 @@ auto tokenMake(string input){
 }
 
 void getUTF(string input, int workerId, Tid parent){
-    int[] output;
+    ubyte[] output;
     {
         int i;
         foreach(c; input.byUTF!char){
@@ -35,6 +35,10 @@ void getUTF(string input, int workerId, Tid parent){
             ++i;
         }
     }
+    // appends a hex for data delimiting;
+    const(ubyte) delimeter = 0x00;
+    output ~= delimeter;
+
     ThreadResultIM result = ThreadResultIM(workerId, cast(immutable) output);
     writeln(result);
 
@@ -64,9 +68,9 @@ void main(){
             });
         }
         {
-            File file = File("Dict", "a");
+            File file = File("Dict.bin", "a");
             foreach(res; results){
-                file.writeln(res.wordUTF);
+                file.rawWrite(res.wordUTF);
             }
         }
     }
